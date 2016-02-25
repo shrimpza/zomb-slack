@@ -3,6 +3,7 @@ package net.shrimpworks.zomb.slack;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,8 @@ import org.java_websocket.handshake.ServerHandshake;
 public class SlackClient implements Closeable {
 
 	private static final Logger logger = Logger.getLogger(SlackClient.class.getName());
+
+	private static final String UTF8 = "UTF-8";
 
 	private static final String START_URL = "%s/rtm.start?token=%s";
 
@@ -122,9 +125,10 @@ public class SlackClient implements Closeable {
 	public boolean send(FancyMessage message) {
 		try {
 			httpClient.get(String.format("%s/chat.postMessage?token=%s&channel=%s&text=%s&icon_url=%s&username=%s", apiUrl, token,
-										 message.channel().id(), message.text(), message.iconUrl(), myName));
+										 message.channel().id(), URLEncoder.encode(message.text(), UTF8),
+										 URLEncoder.encode(message.iconUrl(), UTF8), myName));
 		} catch (IOException e) {
-			logger.warning("Failed to send fancy message, fallback to simple.");
+			logger.log(Level.WARNING, "Failed to send fancy message, fallback to simple.", e);
 			return send(new OutboundMessage(message.channel(), message.text()));
 		}
 

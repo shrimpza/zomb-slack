@@ -65,13 +65,6 @@ public class Main {
 		slackClient.attach(new MessageCallback(zombClient));
 
 		slackClient.connect();
-
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	private static Properties parseOptions(Properties properties, String... args) {
