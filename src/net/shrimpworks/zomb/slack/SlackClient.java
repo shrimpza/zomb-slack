@@ -119,6 +119,18 @@ public class SlackClient implements Closeable {
 		return true;
 	}
 
+	public boolean send(FancyMessage message) {
+		try {
+			httpClient.get(String.format("%s/chat.postMessage?token=%s&channel=%s&text=%s&icon_url=%s&username=%s", apiUrl, token,
+										 message.channel().id(), message.text(), message.iconUrl(), myName));
+		} catch (IOException e) {
+			logger.warning("Failed to send fancy message, fallback to simple.");
+			return send(new OutboundMessage(message.channel(), message.text()));
+		}
+
+		return true;
+	}
+
 	private class SlackWebSocket extends WebSocketClient {
 
 		public SlackWebSocket(URI serverURI) throws IOException {
@@ -265,6 +277,20 @@ public class SlackClient implements Closeable {
 
 		public String text() {
 			return text;
+		}
+	}
+
+	public static class FancyMessage extends OutboundMessage {
+
+		private final String iconUrl;
+
+		public FancyMessage(Channel channel, String text, String iconUrl) {
+			super(channel, text);
+			this.iconUrl = iconUrl;
+		}
+
+		public String iconUrl() {
+			return iconUrl;
 		}
 	}
 }

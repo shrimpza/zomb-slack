@@ -99,8 +99,14 @@ public class Main {
 		public void onMessage(SlackClient slack, SlackClient.Message message) {
 			try {
 				ZombClient.Response response = zomb.execute(message.user().name(), message.message());
-				slack.send(new SlackClient.OutboundMessage(message.channel(),
-														   Arrays.stream(response.response()).collect(Collectors.joining("\n"))));
+				if (response.image() != null && !response.image().isEmpty()) {
+					slack.send(new SlackClient.FancyMessage(message.channel(),
+															Arrays.stream(response.response()).collect(Collectors.joining("\n")),
+															response.image()));
+				} else {
+					slack.send(new SlackClient.OutboundMessage(message.channel(),
+															   Arrays.stream(response.response()).collect(Collectors.joining("\n"))));
+				}
 			} catch (IOException e) {
 				slack.send(new SlackClient.OutboundMessage(message.channel(), "Failed to process your request."));
 			}
